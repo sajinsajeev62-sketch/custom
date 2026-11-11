@@ -3,9 +3,9 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-  <h1>Welcome, {{ user.username }}!</h1>
+  <h1>Welcome Mr.{{ user.username }}here is you personal online innovative space..!</h1>
   <form method="post" action="{% url 'logout' %}">
     {% csrf_token %}
     <button type="submit" class="link-button">Sign out</button>
-  </form>
+    <a href="/movies/" class="button-link">Go to Movies</a>  </form>
 {% endblock %}

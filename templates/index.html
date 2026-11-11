@@ -1,0 +1,167 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search</title>
+    
+    <!-- Link to external CSS file -->
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+<body>
+    
+    <div class="container">
+        <!-- ========== SIDEBAR ========== -->
+        <div class="sidebar">
+            <h3>
+                Recent Searches
+                {% if recent_searches %}
+                    <form method="POST" action="{% url 'clear_history' %}" style="margin: 0; padding: 0;">
+                        {% csrf_token %}
+                        <button type="submit" class="clear-btn" title="Clear all history" onclick="return confirm('Are you sure you want to clear all search history?');">🗑️</button>
+                    </form>
+                {% endif %}
+            </h3>
+
+            <div class="search-history">
+    {% if recent_searches %}
+        {% for search in recent_searches %}
+            <div class="history-item">
+                <!-- Click to search -->
+                <form method="POST" action="{% url 'search_movie' %}" style="flex: 1; margin: 0; padding: 0; border: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="movie_name" value="{{ search.movie_name }}">
+                    <button type="submit" class="history-item-name">{{ search.movie_name }}</button>
+                </form>
+                
+                <!-- Delete button -->
+                <form method="POST" action="{% url 'delete_search' search.id %}" style="margin: 0; padding: 0;" onclick="return confirm('Delete this search?');">
+                    {% csrf_token %}
+                    <button type="submit" class="history-item-delete" title="Delete this search">×</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-history">No search history</div>
+    {% endif %}
+</div>
+        </div>
+
+        <!-- ========== MAIN CONTENT ========== -->
+        <div class="main">
+            <!-- ========== SEARCH SECTION ========== -->
+            <div class="search-section">
+                <h1> Movie Database</h1>
+                <form method="POST" action="{% url 'search_movie' %}" class="search-form">
+                    {% csrf_token %}
+                    <input 
+                        type="text" 
+                        name="movie_name" 
+                        placeholder="Enter movie name..."
+                        value="{{ search_query }}"
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+
+            <!-- ========== ERROR MESSAGE ========== -->
+            {% if error %}
+                <div class="error-message show">{{ error }}</div>
+            {% endif %}
+
+            <!-- ========== MOVIE DETAILS ========== -->
+            {% if movie %}
+                <div class="movie-details show">
+                    <!-- Movie Header -->
+<div class="movie-header">
+    <div class="movie-poster">
+        {% if movie.poster %}
+            <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+        {% else %}
+            <span>No Image Available</span>
+        {% endif %}
+    </div>
+    <div class="movie-header-info">
+        <h2>{{ movie.title }}</h2>
+        <div class="movie-year">{{ movie.year }}</div>
+        <div class="rating-section">
+            <div class="rating">
+                <div class="rating-label">IMDB Rating</div>
+                <div class="rating-value">⭐ {{ movie.imdb_rating }}</div>
+            </div>
+            <div class="rating">
+                <div class="rating-label">Runtime</div>
+                <div class="rating-value">{{ movie.runtime }}</div>
+            </div>
+            <div class="rating">
+                <div class="rating-label">Rated</div>
+                <div class="rating-value">{{ movie.rated }}</div>
+            </div>
+        </div>
+        <div class="movie-genres">
+            {% for genre in movie.genres %}
+                <span class="genre-tag">{{ genre }}</span>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+                    <!-- Plot Section -->
+                    {% if movie.plot and movie.plot != "N/A" %}
+                        <div class="plot-section">
+                            <h3>Plot</h3>
+                            <p>{{ movie.plot }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Details Grid -->
+                    <div class="details-grid">
+                        <div class="detail-card">
+                            <h3>Director</h3>
+                            <p>{{ movie.director }}</p>
+                        </div>
+                        <div class="detail-card">
+                            <h3>Writers</h3>
+                            <p>{{ movie.writer }}</p>
+                        </div>
+                        <div class="detail-card">
+                            <h3>Cast</h3>
+                            <p>{{ movie.actors }}</p>
+                        </div>
+                        <div class="detail-card">
+                            <h3>Release Date</h3>
+                            <p>{{ movie.released }}</p>
+                        </div>
+                        <div class="detail-card">
+                            <h3>Country</h3>
+                            <p>{{ movie.country }}</p>
+                        </div>
+                        <div class="detail-card">
+                            <h3>Language</h3>
+                            <p>{{ movie.language }}</p>
+                        </div>
+                        <div class="detail-card">
+                            <h3>Box Office Collection</h3>
+                            <p>{{ movie.box_office }}</p>
+                        </div>
+                        <div class="detail-card">
+                            <h3>IMDb Votes</h3>
+                            <p>{{ movie.imdb_votes }}</p>
+                        </div>
+                        {% if movie.awards and movie.awards != "N/A" %}
+                            <div class="detail-card">
+                                <h3>Awards</h3>
+                                <p>{{ movie.awards }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
